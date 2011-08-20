@@ -1,17 +1,18 @@
 #!/usr/bin/env perl
 
-print "Calcul du périmètre d'un cercle\n";
+print "This program will calculate the circumference of a circle\n";
 
-print "Quel est le rayon du cercle ?\n";
+print "What is the radius of your circle ? (in cm)\n";
 chomp ($radius = <STDIN>) ;
 
+$pi = 3.14 ;
+$circum = $radius * 2 * $pi ;
+
 if ($radius < 0) {
-    print "Votre rayon est négatif !\n";
+    print "\nSorry, a negative number will return a value of 0 !\n" ;
 }
+
 else {
-    print "\nCalcul du périmètre d'un cercle de rayon $radius cm:\n" ;
-    $pi = 3.141592654 ;
-    $circum = $radius * 2 * $pi ;
-    print "Le périmètre de ce cerle est d'environ :
-    \t$circum cm\n";
+    print "\nOkay, the circumference of this circle is :
+           \t$circum cm\n";
 }
