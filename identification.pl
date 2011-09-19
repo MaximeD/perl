@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
-use warnings;
+
+use strict ;
+use warnings ;
 
 print "Salut, c'est quoi ton petit nom ?\n" ; $name = <STDIN>;
 chomp $name;
