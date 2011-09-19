@@ -3,20 +3,20 @@
 use strict ;
 use warnings ;
 
-print "Salut, c'est quoi ton petit nom ?\n" ; $name = <STDIN>;
-chomp $name;
+my $name ;
+my $valid_name ;
 
-if ($name =~ /^max\b/i or $name =~ /^maxime\b/i) # mon accueil
+chomp($valid_name = qx /whoami/) ;
+
+print "Hi, what's your name ?\n" ;
+chomp($name = <STDIN>) ;
+
+if ($name =~ /$valid_name*/i) # username (case insensitive) and any char
 {
-    print "Bonjour maître, mes salutations\n";
+    print "Greetings master !\n" ;
 }
 
-elsif ($name =~ /^[ck]lem/i)                     # spécial klem
+else
 {
-    print "Va plutôt jouer avec ton hamster $name...\n";
-}
-
-else                                             # n'importe quel autre
-{
-    print "Hé $name pas touche à mon ordi!\ngrrr\n";
+    print "Get away $name, you don't belong here\n";
 }
