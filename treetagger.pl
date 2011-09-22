@@ -27,8 +27,8 @@ chomp($text_lang = <STDIN>) ;
 ##########
 # export #
 ##########
-open (TAGGED, '>>pouet.txt');      # original file
-open (UNKNOWN, '>>unknown.txt');   # every unknown
+open (TAGGED, '>pouet.txt');      # original file
+open (UNKNOWN, '>unknown.txt');   # every unknown
 ###########################################################
 
 #################
@@ -38,7 +38,11 @@ open (UNKNOWN, '>>unknown.txt');   # every unknown
 @tag = qx (echo '@file' | cmd/tree-tagger-$text_lang) ;
 print TAGGED @tag ;
 
-@unknown = grep(/unknown/, @tag);
-print UNKNOWN @unknown ;
+@unknown = grep(/<unknown>/, @tag);
 
+my %unique = @unknown ; # convert to hash to remove duplicates
+
+%unique = sort(%unique);
+
+print UNKNOWN %unique ;
 
