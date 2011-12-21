@@ -4,63 +4,75 @@ use warnings ;
 
 # get the input of eix
 my @eix = `eix -c $ARGV[0]`;
-pop @eix ; # last line is the number of match, we don't really care
 
+my @results;
 # transform every result in a hash
 my $number = 1 ;
 for my $ebuild(@eix) {
-    $ebuild =~ /
-		 \[(?<status>.)\]      # status
-		 \s(?<cat>.+?-.+)\/    # category
-		 (?<package>.+?)\s     # package
-#		 (:?.*)+               # layman
-		 \((?<version>.+?)\):  # version
-		 \s(?<desc>.*)         # description
-	       /x ;
+  if ($ebuild =~ /
+		 \[(?<status>.)\]         # status
+		 \s(?<cat>.+?-.+)\/       # category
+		 (?<package>.+?)\s        # package
+		 (:?\[\d\]\s)?            # layman
+		 \(
+		 (?<version>.+?)
+		 (:?@(\d{2}\/){2}\d{4})?  # if installed, compilation date -> I don't care
+		 (:?\s\->\s(?<new>.+?))?  # new version : this could be worthwhile
+		 \):                      # version
+		 \s(?<desc>.*)            # description
+	       /x) {
 
-    $ebuild = {
+
+    # $ebuild = {
+    push (@results,  {
 	       number      => "\e[1;34m$number)\e[0m",
 	       package     => "$+{package}",
 	       cat         => $+{cat},
 	       version     => "$+{version}\e[0m",
 	       status      => "$+{status}\e[0m",
-	       description => $+{desc}
-	      } ;
-
-    $number++ ;
+	       description => $+{desc},
+	       new         => $+{new}
+	      }) ;
+  }
+  $number++ ;
 }
 
-for (my $i = 0 ; $i < scalar(@eix) ; $i++) {
+for (my $i = 0 ; $i < scalar(@results) ; $i++) {
+  ## colors
   # version
-  if ($eix[$i]{version} =~ /~/) {
-    $eix[$i]{version} = "\e[1;33m$eix[$i]{version}";
+  if ($results[$i]{version} =~ /~/) {
+    $results[$i]{version} = "\e[1;33m$results[$i]{version}";
   }
-  elsif ($eix[$i]{version} =~ /M|--/) {
-    $eix[$i]{version} = "\e[1;31m$eix[$i]{version}";
-  }
-  else {
-    $eix[$i]{version} = "\e[0;32m$eix[$i]{version}";
-  }
-
-
-  if ($eix[$i]{status} =~ /I/ ) {
-    $eix[$i]{status} = "\e[1;90m\e[42m$eix[$i]{status}";
-  }
-  elsif ($eix[$i]{status} =~ /U/ ) {
-    $eix[$i]{status} = "\e[1;90m\e[46m$eix[$i]{status}";
+  elsif ($results[$i]{version} =~ /M|--/) {
+    $results[$i]{version} = "\e[1;31m$results[$i]{version}";
   }
   else {
-    $eix[$i]{status} = "\e[0;32m$eix[$i]{status}";
+    $results[$i]{version} = "\e[0;32m$results[$i]{version}";
   }
 
-}
 
-for (my $i = 0 ; $i < scalar(@eix) ; $i++) {
-  print "$eix[$i]{number} " ;
-  print "$eix[$i]{cat}/\e[1;37m$eix[$i]{package}\e[0m " ;
-  print "($eix[$i]{version}) " ;
-  print "[$eix[$i]{status}]\n" ;
-  print "\t$eix[$i]{description}\n";
+  if ($results[$i]{status} =~ /I/ ) {
+    $results[$i]{status} = "\e[1;90m\e[42m$results[$i]{status}";
+  }
+  elsif ($results[$i]{status} =~ /U/ ) {
+    $results[$i]{status} = "\e[1;90m\e[46m$results[$i]{status}";
+  }
+  else {
+    $results[$i]{status} = "\e[0;32m$results[$i]{status}";
+  }
+
+  ## display
+  print "$results[$i]{number} " ;
+  print "[$results[$i]{status}]\t" ;
+  print "$results[$i]{cat}/\e[1;37m$results[$i]{package}\e[0m " ;
+  print "($results[$i]{version}" ;
+  if (defined $results[$i]{new}) {
+    print " -> \e[1;42m$results[$i]{new}\e[0m)\n" ;
+  }
+  else {
+    print ")\n";
+  }
+  print "\t$results[$i]{description}\n";
 }
 
 # emerge part
@@ -73,7 +85,7 @@ my @emerge_list = split (/[ ,]*/, $choice) ;
 my $packages ;
 foreach my $number(@emerge_list){
   $number -= 1 ;
-  $packages .= " $eix[$number]{cat}/$eix[$number]{package}";
+  $packages .= " $results[$number]{cat}/$results[$number]{package}";
 }
 
 system("sudo emerge -av $packages");
