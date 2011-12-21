@@ -2,6 +2,28 @@
 use strict ;
 use warnings ;
 
+=pod
+
+=head1 SYNOPSIS
+
+I<yaourtix> is a quick and dirty script
+made to simulate archlinux's I<yaourt>
+
+=head1 DESCRIPTION
+
+Just like I<yaourt> in archlinux, it will retrieive
+the list of packages matching the argument you pass.
+Then you can select which ebuild you want to install
+by typing their number (comma or space separated).
+Portage will handle the rest.
+By default, it is set up to work with I<quietemerge>
+(http://code.google.com/p/quietemerge/),
+an amazing shell script to handle portage.
+Give it a try, it's worth it.
+
+=cut
+
+
 # get the input of eix
 my @eix = `eix -c $ARGV[0]`;
 
@@ -13,7 +35,7 @@ for my $ebuild(@eix) {
 		 \[(?<status>.)\]         # status
 		 \s(?<cat>.+?-.+)\/       # category
 		 (?<package>.+?)\s        # package
-		 (:?\[\d\]\s)?            # layman
+		 (:?\[\d\]\s)?            # layman adds a [1] comment we discard
 		 \(
 		 (?<version>.+?)
 		 (:?@(\d{2}\/){2}\d{4})?  # if installed, compilation date -> I don't care
@@ -88,5 +110,31 @@ foreach my $number(@emerge_list){
   $packages .= " $results[$number]{cat}/$results[$number]{package}";
 }
 
-system("sudo emerge -av $packages");
+# we use quietemerge from http://code.google.com/p/quietemerge/
+# because it rocks
+system("sudo quietemerge -aDuNv $packages");
+
+=head1 BUGS
+
+The first bug is :
+this program is written in perl !
+Honestly perl is great, fast and everything,
+but since eix is written in C,
+it would definitly have been a better idea
+to write this soft in C too.
+
+=over
+
+=item - downgrade has not been written atm.
+
+=item - for the moment you can't pass any argument to emerge nor eix.
+
+=item - probably many other things, but I made just a few tests.
+
+=item - no USEFLAGS displayed since it relies on I<eix -c>
+which won't print them.
+
+=back
+
+=cut
 
