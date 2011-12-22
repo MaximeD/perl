@@ -1,4 +1,4 @@
-#! /usr/bin/env perl
+#!/usr/bin/env perl
 use strict ;
 use warnings ;
 
@@ -23,6 +23,7 @@ Give it a try, it's worth it.
 
 =cut
 
+die "Please give me a package to look for !\n" if !$ARGV[0];
 
 # get the input of eix
 my @eix = `eix -c $ARGV[0]`;
@@ -88,7 +89,7 @@ for (my $i = 0 ; $i < scalar(@results) ; $i++) {
 
   ## display
   print "$results[$i]{number} " ;
-  print "[$results[$i]{status}]\t" ;
+  print "[$results[$i]{status}] " ;
   print "$results[$i]{cat}/\e[1;37m$results[$i]{package}\e[0m " ;
   print "($results[$i]{version}" ;
   if (defined $results[$i]{new}) {
@@ -97,13 +98,13 @@ for (my $i = 0 ; $i < scalar(@results) ; $i++) {
   else {
     print ")\n";
   }
-  print "\t$results[$i]{description}\n";
+  print "\t\t$results[$i]{description}\n";
 }
 
 # emerge part
 print "\nWhich packages would you like to emerge ?\n" ;
 chomp(my $choice = <STDIN>) ;
-die if $choice !~ /\d/;
+die "Nothing to emerge!\n" if $choice !~ /\d/;
 
 my @emerge_list = split (/[ ,]*/, $choice) ;
 
