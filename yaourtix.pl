@@ -79,6 +79,9 @@ for (my $i = 0 ; $i < scalar(@results) ; $i++) {
   elsif ($results[$i]{status} =~ /U/ ) {
     $results[$i]{status} = "\e[1;90m\e[46m$results[$i]{status}";
   }
+  elsif ($results[$i]{status} =~ /D/ ) {
+    $results[$i]{status} = "\e[1;90m\e[45m$results[$i]{status}";
+  }
   else {
     $results[$i]{status} = "\e[0;32m$results[$i]{status}";
   }
@@ -124,8 +127,6 @@ it would definitly have been a better idea
 to write this soft in C too.
 
 =over
-
-=item - downgrade has not been written atm.
 
 =item - for the moment you can't pass any argument to emerge nor eix.
 
